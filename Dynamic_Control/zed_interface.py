@@ -3,8 +3,7 @@
 
 import pyzed.sl as sl
 import math as m
-
-"initialization of Zed X Mini camera"
+import time
 
 class ZEDWrapper:
     def __init__(self):
@@ -20,13 +19,32 @@ class ZEDWrapper:
 
         self.runtime = sl.RuntimeParameters()
         self.pose = sl.Pose()
+        self.prev_position = None
+        self.prev_time = None
 
     def get_velocity(self):
         if self.zed.grab(self.runtime) == sl.ERROR_CODE.SUCCESS:
             self.zed.get_position(self.pose, sl.REFERENCE_FRAME.WORLD)
-            velocity = self.pose.get_velocity()
-            vx, vy, vz = velocity.get()
-            speed = (vx**2 + vy**2 + vz**2) ** 0.5
+            translation = self.pose.get_translation()
+            x, y, z = translation.get()
+
+            now = time.time()
+
+            if self.prev_position is None:
+                self.prev_position = (x, y, z)
+                self.prev_time = now
+                return 0.0  # Vitesse nulle au premier appel
+
+            dx = x - self.prev_position[0]
+            dy = y - self.prev_position[1]
+            dz = z - self.prev_position[2]
+            dt = now - self.prev_time if self.prev_time else 1e-6
+
+            speed = ((dx**2 + dy**2 + dz**2) ** 0.5) / dt
+
+            self.prev_position = (x, y, z)
+            self.prev_time = now
+
             return speed
         return None
 
