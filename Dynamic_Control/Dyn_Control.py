@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Dynamic control of the JetTec Rover"""
+"""Dynamic open-loop control of the JetTec Rover, for testing"""
 
 import Jetson.GPIO as GPIO  # Motors with ESC, connected to Jetson Orin Nano dev kit
 import smbus2  # I2C Bus connected to PCA9685
