@@ -8,21 +8,25 @@ import time
 class ZEDWrapper:
     def __init__(self):
         self.zed = sl.Camera()
+
+        # --- Paramètres d'initialisation ---
         init_params = sl.InitParameters()
         init_params.coordinate_units = sl.UNIT.METER
         init_params.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Z_UP
         init_params.depth_mode = sl.DEPTH_MODE.NONE
 
+        # --- Ouverture de la caméra ---
         status = self.zed.open(init_params)
         if status != sl.ERROR_CODE.SUCCESS:
-            raise RuntimeError(f"Error ZED : {status}")
+            raise RuntimeError(f"❌ Erreur à l'ouverture de la ZED : {status}")
 
-        # Activation du positional tracking
-        self.tracking_params = sl.PositionalTrackingParameters()
-        tracking_status = self.zed.enable_positional_tracking(self.tracking_params)
+        # --- Activation du positional tracking ---
+        tracking_params = sl.PositionalTrackingParameters()
+        tracking_status = self.zed.enable_positional_tracking(tracking_params)
         if tracking_status != sl.ERROR_CODE.SUCCESS:
-            raise RuntimeError(f"Error enabling positional tracking: {tracking_status}")
+            raise RuntimeError(f"❌ Erreur lors de l'activation du tracking : {tracking_status}")
 
+        # --- Runtime + pose ---
         self.runtime = sl.RuntimeParameters()
         self.pose = sl.Pose()
         self.prev_position = None
@@ -39,7 +43,7 @@ class ZEDWrapper:
             if self.prev_position is None:
                 self.prev_position = (x, y, z)
                 self.prev_time = now
-                return 0.0  # Vitesse nulle au premier appel
+                return 0.0  # Premier appel
 
             dx = x - self.prev_position[0]
             dy = y - self.prev_position[1]
@@ -47,6 +51,9 @@ class ZEDWrapper:
             dt = now - self.prev_time if self.prev_time else 1e-6
 
             speed = ((dx**2 + dy**2 + dz**2) ** 0.5) / dt
+
+            # DEBUG : Afficher position et vitesse
+            print(f"[ZED] x={x:.3f}, y={y:.3f}, z={z:.3f}, speed={speed:.3f} m/s")
 
             self.prev_position = (x, y, z)
             self.prev_time = now
@@ -69,4 +76,6 @@ class ZEDWrapper:
         return m.degrees(m.atan2(siny_cosp, cosy_cosp))
 
     def close(self):
+        self.zed.disable_positional_tracking()
         self.zed.close()
+        print("📦 ZED correctement fermée.")
