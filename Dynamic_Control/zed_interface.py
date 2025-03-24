@@ -24,7 +24,8 @@ class ZEDWrapper:
     def get_velocity(self):
         if self.zed.grab(self.runtime) == sl.ERROR_CODE.SUCCESS:
             self.zed.get_position(self.pose, sl.REFERENCE_FRAME.WORLD)
-            velocity = self.pose.get_velocity()
+            velocity = sl.Velocity()
+            self.zed.get_velocity(velocity, sl.REFERENCE_FRAME.WORLD)
             vx, vy, vz = velocity.get()
             speed = (vx**2 + vy**2 + vz**2) ** 0.5
             return speed
