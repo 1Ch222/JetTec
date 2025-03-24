@@ -37,7 +37,10 @@ def set_pwm(channel, duty_cycle):
 # --- MOTEUR ---
 MOTOR_CHANNEL = 0
 MOTOR_NEUTRAL = 15.0  # point neutre
-MOTOR_LIMITS = (13.0, 20.0)  # backward, forward
+MOTOR_LIMITS = (1.0, 29.0)  # backward, forward
+MOTOR_INIT = 15.0
+
+motor_duty = MOTOR_INIT
 
 def set_motor_duty(duty):
     set_pwm(MOTOR_CHANNEL, duty)
