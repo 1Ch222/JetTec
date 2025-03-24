@@ -13,7 +13,7 @@ class ZEDWrapper:
         init_params = sl.InitParameters()
         init_params.coordinate_units = sl.UNIT.METER
         init_params.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Z_UP
-        init_params.depth_mode = sl.DEPTH_MODE.NONE
+        init_params.depth_mode = sl.DEPTH_MODE.PERFORMANCE
 
         # --- Ouverture de la caméra ---
         status = self.zed.open(init_params)
