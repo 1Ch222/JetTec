@@ -7,20 +7,26 @@ import time
 
 class ZEDWrapper:
     def __init__(self):
-        self.zed = sl.Camera()
-        init_params = sl.InitParameters()
-        init_params.coordinate_units = sl.UNIT.METER
-        init_params.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Z_UP
-        init_params.depth_mode = sl.DEPTH_MODE.NONE
+    self.zed = sl.Camera()
+    init_params = sl.InitParameters()
+    init_params.coordinate_units = sl.UNIT.METER
+    init_params.coordinate_system = sl.COORDINATE_SYSTEM.RIGHT_HANDED_Z_UP
+    init_params.depth_mode = sl.DEPTH_MODE.NONE
 
-        status = self.zed.open(init_params)
-        if status != sl.ERROR_CODE.SUCCESS:
-            raise RuntimeError(f"Error ZED : {status}")
+    status = self.zed.open(init_params)
+    if status != sl.ERROR_CODE.SUCCESS:
+        raise RuntimeError(f"Error ZED : {status}")
 
-        self.runtime = sl.RuntimeParameters()
-        self.pose = sl.Pose()
-        self.prev_position = None
-        self.prev_time = None
+    # Activation du positional tracking
+    self.tracking_params = sl.PositionalTrackingParameters()
+    tracking_status = self.zed.enable_positional_tracking(self.tracking_params)
+    if tracking_status != sl.ERROR_CODE.SUCCESS:
+        raise RuntimeError(f"Error enabling positional tracking: {tracking_status}")
+
+    self.runtime = sl.RuntimeParameters()
+    self.pose = sl.Pose()
+    self.prev_position = None
+    self.prev_time = None
 
     def get_velocity(self):
         if self.zed.grab(self.runtime) == sl.ERROR_CODE.SUCCESS:
